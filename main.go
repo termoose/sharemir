@@ -12,8 +12,17 @@ func main() {
 		fmt.Printf("part %d length: %d\n", key, len(part))
 	}
 
-	_ = splitter.PartsToFiles(parts, "file_%d.part")
+	err := splitter.PartsToFiles(parts, "file_%d.part")
 
-	secret, _ := splitter.Combine(parts[2:])
-	fmt.Printf("secret: %v\n", string(secret))
+	if err != nil {
+		panic(err)
+	}
+
+	//secret, _ := splitter.Combine(parts[1:])
+	secret, err := splitter.CombineFiles(
+		"file_0.part", "file_1.part", "file_3.part")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("secret:\n%v\n", string(secret))
 }

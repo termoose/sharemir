@@ -48,6 +48,28 @@ func Combine(byteParts []Part) ([]byte, error) {
 	return secret, nil
 }
 
+func CombineFiles(files... string) ([]byte, error) {
+	var parts []Part
+	for _, f := range files {
+		data, err := ioutil.ReadFile(f)
+
+		if err != nil {
+			return nil, fmt.Errorf("combine files files: %w", err)
+		}
+
+		parts = append(parts, data)
+
+	}
+
+	secret, err := Combine(parts)
+
+	if err != nil {
+		return nil, fmt.Errorf("combine files: %w", err)
+	}
+
+	return secret, nil
+}
+
 func bytesToParts(bytes []Part) map[byte][]byte {
 	result := make(map[byte][]byte)
 
