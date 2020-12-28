@@ -3,7 +3,9 @@ package splitter
 import (
 	"fmt"
 	"github.com/corvus-ch/shamir"
+	"io"
 	"io/ioutil"
+	"os"
 )
 
 type Part []byte
@@ -48,7 +50,41 @@ func Combine(byteParts []Part) ([]byte, error) {
 	return secret, nil
 }
 
-func CombineFiles(files... string) ([]byte, error) {
+func CombineFilesReader(files... string) ([]byte, error) {
+	readers := make(map[byte]io.Reader, len(files))
+	var fileSize int64
+
+	for _, file := range files {
+		f, err := os.Open(file)
+		if err != nil {
+			return nil, fmt.Errorf("combine files reader: %w", err)
+		}
+
+		stat, _ := f.Stat()
+
+		// The secret is the same size as all the parts
+		// minus the first byte
+		fileSize = stat.Size() - 1
+
+		// Read the first byte to get the map key
+		first := make([]byte, 1)
+		_, _ = f.Read(first)
+
+		readers[first[0]] = f
+	}
+
+	reader, err := shamir.NewReader(readers)
+	if err != nil {
+		return nil, fmt.Errorf("creating shamir readers: %w", err)
+	}
+
+	secret := make([]byte, fileSize)
+	_, _ = reader.Read(secret)
+
+	return secret, nil
+}
+
+func CombineFiles(files ...string) ([]byte, error) {
 	var parts []Part
 	for _, f := range files {
 		data, err := ioutil.ReadFile(f)
