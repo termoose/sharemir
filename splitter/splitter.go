@@ -50,7 +50,7 @@ func Combine(byteParts []Part) ([]byte, error) {
 	return secret, nil
 }
 
-func CombineFilesReader(files... string) ([]byte, error) {
+func CombineFilesReader(files ...string) ([]byte, error) {
 	readers := make(map[byte]io.Reader, len(files))
 	var fileSize int64
 
@@ -94,7 +94,6 @@ func CombineFiles(files ...string) ([]byte, error) {
 		}
 
 		parts = append(parts, data)
-
 	}
 
 	secret, err := Combine(parts)

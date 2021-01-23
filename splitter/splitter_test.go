@@ -4,6 +4,22 @@ import (
 	"testing"
 )
 
+func BenchmarkFilesCombine(b *testing.B) {
+	b.Run("Combine", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _ = CombineFiles("file_0.part", "file_1.part",
+				"file_3.part", "file_4.part")
+		}
+	})
+
+	b.Run("CombineReader", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _ = CombineFilesReader("file_0.part", "file_1.part",
+				"file_3.part", "file_4.part")
+		}
+	})
+}
+
 func BenchmarkFileSplit(b *testing.B) {
 	var parts []Part
 
@@ -16,20 +32,6 @@ func BenchmarkFileSplit(b *testing.B) {
 	b.Run("ToFiles", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = PartsToFiles(parts, "file_%d.part")
-		}
-	})
-
-	b.Run("Combine", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_, _ = CombineFiles("file_0.part", "file_1.part",
-				"file_3.part", "file_4.part")
-		}
-	})
-
-	b.Run("CombineReader", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_, _ = CombineFilesReader("file_0.part", "file_1.part",
-				"file_3.part", "file_4.part")
 		}
 	})
 }
